@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "260556650892",
+    "project_id": "new-app-notes-app",
+    "storage_bucket": "new-app-notes-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260556650892:android:5a5f0f3060b83aee2dfea9",
+        "android_client_info": {
+          "package_name": "com.Shade.my_notes_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260556650892-il3k7ml6vhuea0hfgg3f52lt1a0figc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEXQ88TYEr5xU4uS5KVvBAx37N5azQd8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260556650892-il3k7ml6vhuea0hfgg3f52lt1a0figc4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "260556650892-5hgr142o2jdv3v3p5460cpssjunbnkal.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Shade.newappnotesapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260556650892:android:a8bf00707a9197702dfea9",
+        "android_client_info": {
+          "package_name": "com.Shade.newappnotesapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260556650892-il3k7ml6vhuea0hfgg3f52lt1a0figc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEXQ88TYEr5xU4uS5KVvBAx37N5azQd8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260556650892-il3k7ml6vhuea0hfgg3f52lt1a0figc4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "260556650892-5hgr142o2jdv3v3p5460cpssjunbnkal.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Shade.newappnotesapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
