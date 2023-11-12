@@ -3,6 +3,7 @@ import 'package:my_notes_app/constants/routes.dart';
 import 'package:my_notes_app/enum/menu_action.dart';
 import 'package:my_notes_app/services/auth/auth_service.dart';
 import 'package:my_notes_app/services/crud/notes_service.dart';
+import 'package:my_notes_app/views/loading_view.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -32,8 +33,14 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Main UI"),
+          title: const Text('Your Notes'),
           actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(newNoteRoute);
+              },
+              icon: const Icon(Icons.add),
+            ),
             PopupMenuButton<MenuActions>(
               onSelected: (value) async {
                 switch (value) {
@@ -71,10 +78,12 @@ class _NotesViewState extends State<NotesView> {
                   stream: _notesService.allNotes,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
+                      case ConnectionState.active:
+                      // TODO: Handle this case.
                       case ConnectionState.waiting:
                         return const Text('Waiting for all notes ...');
                       default:
-                        return const CircularProgressIndicator();
+                        return const LoadingView();
                     }
                   },
                 );

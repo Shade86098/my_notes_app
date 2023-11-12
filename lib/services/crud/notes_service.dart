@@ -11,23 +11,23 @@ import 'crud_exceptions.dart';
 class NotesService {
   Database? _db;
 
-  List<DatabaseNotes> _notes = [];
+  List<DatabaseNote> _notes = [];
 
   static final NotesService _shared = NotesService._sharedInstance();
   NotesService._sharedInstance();
   factory NotesService() => _shared;
 
   final _notesStreamController =
-      StreamController<List<DatabaseNotes>>.broadcast();
+      StreamController<List<DatabaseNote>>.broadcast();
 
-  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
       final user = await getUser(email: email);
       return user;
     } on CouldNotFindUserException {
-      final createdUser = createUser(email: email);
+      final createdUser = await createUser(email: email);
       return createdUser;
     } catch (_) {
       rethrow;
@@ -40,8 +40,8 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNotes> updateNote({
-    required DatabaseNotes note,
+  Future<DatabaseNote> updateNote({
+    required DatabaseNote note,
     required String text,
   }) async {
     await _ensureDbIsOpen();
@@ -63,14 +63,14 @@ class NotesService {
     }
   }
 
-  Future<Iterable<DatabaseNotes>> getAllNotes() async {
+  Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrowException();
     final notes = await db.query(notesTable);
-    return notes.map((noteRow) => DatabaseNotes.fromRow(noteRow));
+    return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
-  Future<DatabaseNotes> getNote({required int id}) async {
+  Future<DatabaseNote> getNote({required int id}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrowException();
     final notes = await db.query(
@@ -82,7 +82,7 @@ class NotesService {
     if (notes.isEmpty) {
       throw CouldNotFindNotesException();
     } else {
-      final note = DatabaseNotes.fromRow(notes.first);
+      final note = DatabaseNote.fromRow(notes.first);
       _notes.add(note);
       _notesStreamController.add(_notes);
       _notes.removeWhere((note) => note.id == id);
@@ -99,7 +99,7 @@ class NotesService {
     return numberOfDeletions;
   }
 
-  Future<void> deleteNotes({required int id}) async {
+  Future<void> deleteNote({required int id}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrowException();
     final deletedCount = await db.delete(
@@ -115,7 +115,7 @@ class NotesService {
     }
   }
 
-  Future<DatabaseNotes> createNotes({required DatabaseUser owner}) async {
+  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrowException();
     //make sure owner exists in database with the correct id
@@ -129,7 +129,7 @@ class NotesService {
       textColumn: text,
       isSyncedColumn: 1,
     });
-    final note = DatabaseNotes(
+    final note = DatabaseNote(
       id: noteID,
       userID: owner.id,
       text: text,
@@ -150,7 +150,7 @@ class NotesService {
       whereArgs: [email.toLowerCase()],
     );
 
-    if (result.isNotEmpty) {
+    if (result.isEmpty) {
       throw CouldNotFindUserException();
     } else {
       return DatabaseUser.fromRow(result.first);
@@ -262,20 +262,20 @@ class DatabaseUser {
   int get hashCode => id.hashCode;
 }
 
-class DatabaseNotes {
+class DatabaseNote {
   final int id;
   final int userID;
   final String text;
   final bool isSynced;
 
-  DatabaseNotes({
+  DatabaseNote({
     required this.id,
     required this.userID,
     required this.text,
     required this.isSynced,
   });
 
-  DatabaseNotes.fromRow(Map<String, Object?> map)
+  DatabaseNote.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userID = map[userIdColumn] as int,
         text = map[textColumn] as String,
@@ -286,7 +286,7 @@ class DatabaseNotes {
       'Notes, ID = $id, userID = $userID, isSynced = $isSynced';
 
   @override
-  bool operator ==(covariant DatabaseNotes other) => id == other.id;
+  bool operator ==(covariant DatabaseNote other) => id == other.id;
 
   @override
   int get hashCode => id.hashCode;
