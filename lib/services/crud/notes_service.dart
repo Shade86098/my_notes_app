@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart'
@@ -54,15 +53,21 @@ class NotesService {
     final db = _getDatabaseOrThrowException();
     //make sure note exists
     await getNote(id: note.id);
-    final updateCount = await db.update(notesTable, {
-      textColumn: text,
-      isSyncedColumn: false,
-    });
+    final updateCount = await db.update(
+      notesTable,
+      {
+        // idColumn: note.id,
+        textColumn: text,
+        isSyncedColumn: false,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
     if (updateCount == 0) {
       throw CouldNotUpdateNoteException();
     } else {
-      final updatedNote = await getNote(id: note.id);
-      _notes.removeWhere((element) => note.id == updatedNote.id);
+      DatabaseNote updatedNote = await getNote(id: note.id);
+      _notes.removeWhere((note) => note.id == updatedNote.id);
       _notes.add(updatedNote);
       _notesStreamController.add(_notes);
       return updatedNote;
@@ -139,7 +144,7 @@ class NotesService {
       id: noteID,
       userID: owner.id,
       text: text,
-      isSynced: true,
+      isSynced: 0,
     );
     _notes.add(note);
     _notesStreamController.add(_notes);
@@ -272,7 +277,7 @@ class DatabaseNote {
   final int id;
   final int userID;
   final String text;
-  final bool isSynced;
+  final int isSynced;
 
   DatabaseNote({
     required this.id,
@@ -285,11 +290,11 @@ class DatabaseNote {
       : id = map[idColumn] as int,
         userID = map[userIdColumn] as int,
         text = map[textColumn] as String,
-        isSynced = (map[isSyncedColumn] as int) == 1 ? true : false;
+        isSynced = map[isSyncedColumn] as int;
 
   @override
   String toString() =>
-      'Notes, ID = $id, userID = $userID, isSynced = $isSynced';
+      'Notes = $text, ID = $id, userID = $userID, isSynced = $isSynced';
 
   @override
   bool operator ==(covariant DatabaseNote other) => id == other.id;
