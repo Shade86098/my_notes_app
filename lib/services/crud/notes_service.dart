@@ -58,7 +58,7 @@ class NotesService {
       {
         // idColumn: note.id,
         textColumn: text,
-        isSyncedColumn: false,
+        isSyncedColumn: 0,
       },
       where: 'id = ?',
       whereArgs: [note.id],
@@ -66,7 +66,7 @@ class NotesService {
     if (updateCount == 0) {
       throw CouldNotUpdateNoteException();
     } else {
-      DatabaseNote updatedNote = await getNote(id: note.id);
+      final DatabaseNote updatedNote = await getNote(id: note.id);
       _notes.removeWhere((note) => note.id == updatedNote.id);
       _notes.add(updatedNote);
       _notesStreamController.add(_notes);
