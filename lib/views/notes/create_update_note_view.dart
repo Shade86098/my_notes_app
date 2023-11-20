@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:my_notes_app/services/auth/auth_service.dart';
 import 'package:my_notes_app/services/crud/notes_service.dart';
+import 'package:my_notes_app/utils/generics/get_arguments.dart';
 import 'package:my_notes_app/views/loading_view.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateOrUpdateNoteView extends StatefulWidget {
+  const CreateOrUpdateNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateOrUpdateNoteView> createState() => _CreateOrUpdateNoteViewState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
   DatabaseNote? _note;
   late final NotesService _notesService;
   late final TextEditingController _textEditingController;
@@ -39,7 +40,13 @@ class _NewNoteViewState extends State<NewNoteView> {
     _textEditingController.addListener(_textControllerListener);
   }
 
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetNote(BuildContext context) async {
+    final widgetNote = context.getArgument<DatabaseNote>();
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _textEditingController.text = widgetNote.text;
+      return widgetNote;
+    }
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -49,7 +56,9 @@ class _NewNoteViewState extends State<NewNoteView> {
       // only way of auth is email and pass, email should exist.
       final email = currentUser.email!;
       final owner = await _notesService.getUser(email: email);
-      return await _notesService.createNote(owner: owner);
+      final newNote = await _notesService.createNote(owner: owner);
+      _note = newNote;
+      return newNote;
     }
   }
 
@@ -86,11 +95,10 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text('New Note'),
       ),
       body: FutureBuilder(
-        future: createNewNote(),
+        future: createOrGetNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              _note = snapshot.data as DatabaseNote;
               _setupTextControllerListener();
               return TextField(
                 controller: _textEditingController,
