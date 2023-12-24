@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -46,9 +43,19 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCMfESKV9a7xJrenDIaVH49b8uevQCwnP4',
+    appId: '1:260556650892:web:61e7683f791211cd2dfea9',
+    messagingSenderId: '260556650892',
+    projectId: 'new-app-notes-app',
+    authDomain: 'new-app-notes-app.firebaseapp.com',
+    storageBucket: 'new-app-notes-app.appspot.com',
+    measurementId: 'G-P98SETEBLL',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDEXQ88TYEr5xU4uS5KVvBAx37N5azQd8I',
-    appId: '1:260556650892:android:a8bf00707a9197702dfea9',
+    appId: '1:260556650892:android:5a5f0f3060b83aee2dfea9',
     messagingSenderId: '260556650892',
     projectId: 'new-app-notes-app',
     storageBucket: 'new-app-notes-app.appspot.com',
@@ -56,23 +63,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBXP5Co_PsKVbI2YQ2cr4L7SVl4YWi53xQ',
-    appId: '1:260556650892:ios:043d87246b03194d2dfea9',
+    appId: '1:260556650892:ios:5ac0d77e65bf83e12dfea9',
     messagingSenderId: '260556650892',
     projectId: 'new-app-notes-app',
     storageBucket: 'new-app-notes-app.appspot.com',
-    iosClientId:
-        '260556650892-5hgr142o2jdv3v3p5460cpssjunbnkal.apps.googleusercontent.com',
-    iosBundleId: 'com.Shade.my_notes',
+    iosBundleId: 'com.Shade.myNotesApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBXP5Co_PsKVbI2YQ2cr4L7SVl4YWi53xQ',
-    appId: '1:260556650892:ios:043d87246b03194d2dfea9',
+    appId: '1:260556650892:ios:f5c86404c2a3811f2dfea9',
     messagingSenderId: '260556650892',
     projectId: 'new-app-notes-app',
     storageBucket: 'new-app-notes-app.appspot.com',
-    iosClientId:
-        '260556650892-5hgr142o2jdv3v3p5460cpssjunbnkal.apps.googleusercontent.com',
-    iosBundleId: 'com.Shade.my_notes',
+    iosBundleId: 'com.Shade.myNotesApp.RunnerTests',
   );
 }

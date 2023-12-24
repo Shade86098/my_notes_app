@@ -3,7 +3,7 @@ import 'package:my_notes_app/services/auth/auth_provider.dart';
 import 'package:my_notes_app/services/auth/auth_user.dart';
 import 'package:test/test.dart';
 
-void main() {
+main() {
   group('Mock Authentication', () {
     final provider = MockAuthProvider();
     test('Should not be initialized to begin with', () {
