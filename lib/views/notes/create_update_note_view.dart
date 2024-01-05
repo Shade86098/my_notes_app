@@ -15,12 +15,14 @@ class CreateOrUpdateNoteView extends StatefulWidget {
 class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
   CloudNote? _note;
   late final FirebaseCloudStorage _notesService;
-  late final TextEditingController _textEditingController;
+  late final TextEditingController _text;
+  late final TextEditingController _title;
 
   @override
   void initState() {
     _notesService = FirebaseCloudStorage();
-    _textEditingController = TextEditingController();
+    _text = TextEditingController();
+    _title = TextEditingController();
     super.initState();
   }
 
@@ -29,23 +31,26 @@ class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
     if (note == null) {
       return;
     }
-    final text = _textEditingController.text;
+    final text = _text.text;
+    final title = _title.text;
     await _notesService.updateNote(
       documentId: note.documentID,
       text: text,
+      title: title,
     );
   }
 
   void _setupTextControllerListener() {
-    _textEditingController.removeListener(_textControllerListener);
-    _textEditingController.addListener(_textControllerListener);
+    _text.removeListener(_textControllerListener);
+    _text.addListener(_textControllerListener);
   }
 
   Future<CloudNote> createOrGetNote(BuildContext context) async {
     final widgetNote = context.getArgument<CloudNote>();
     if (widgetNote != null) {
       _note = widgetNote;
-      _textEditingController.text = widgetNote.text;
+      _text.text = widgetNote.text;
+      _title.text = widgetNote.title;
       return widgetNote;
     }
     final existingNote = _note;
@@ -63,18 +68,20 @@ class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
 
   void _deleteNoteIfTextIsEmpty() {
     final note = _note;
-    if (_textEditingController.text.isEmpty && note != null) {
+    if (_text.text.isEmpty && _title.text.isEmpty && note != null) {
       _notesService.deleteNote(documentId: note.documentID);
     }
   }
 
   void _saveNoteIfTextNotEmpty() async {
     final note = _note;
-    final text = _textEditingController.text;
-    if (note != null && text.isNotEmpty) {
+    final text = _text.text;
+    final title = _title.text;
+    if (note != null && (text.isNotEmpty || title.isNotEmpty)) {
       await _notesService.updateNote(
         documentId: note.documentID,
         text: text,
+        title: title,
       );
     }
   }
@@ -83,7 +90,7 @@ class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
   void dispose() {
     _deleteNoteIfTextIsEmpty();
     _saveNoteIfTextNotEmpty();
-    _textEditingController.dispose();
+    _text.dispose();
     super.dispose();
   }
 
@@ -99,12 +106,28 @@ class _CreateOrUpdateNoteViewState extends State<CreateOrUpdateNoteView> {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               _setupTextControllerListener();
-              return TextField(
-                controller: _textEditingController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: const InputDecoration(
-                    hintText: 'Start Typing your Note ...'),
+              return SizedBox(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _title,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                        hintText: 'Title',
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 10)),
+                    TextField(
+                      controller: _text,
+                      keyboardType: TextInputType.multiline,
+                      minLines: 10,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                          hintText: 'Start Typing your Note ...'),
+                    ),
+                  ],
+                ),
               );
             default:
               return const LoadingView();

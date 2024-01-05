@@ -1,34 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:my_notes_app/services/auth/auth_user.dart';
+import 'package:equatable/equatable.dart';
 
 @immutable
 abstract class AuthState {
-  const AuthState();
+  final bool isLoading;
+  final String loadingText;
+  const AuthState({
+    required this.isLoading,
+    this.loadingText = 'Please wait a moment',
+  });
 }
 
-class AuthStateLoading extends AuthState {
-  const AuthStateLoading();
+class AuthStateUninitialized extends AuthState {
+  const AuthStateUninitialized({required super.isLoading});
 }
 
 class AuthStateLoggedIn extends AuthState {
   final AuthUser user;
-  const AuthStateLoggedIn(this.user);
-}
-
-class AuthStateLoginFaliure extends AuthState {
-  final Exception exception;
-  const AuthStateLoginFaliure(this.exception);
+  const AuthStateLoggedIn(this.user, {required super.isLoading});
 }
 
 class AuthStateNeedVerification extends AuthState {
-  const AuthStateNeedVerification();
+  const AuthStateNeedVerification({required super.isLoading});
 }
 
-class AuthStateLoggedOut extends AuthState {
-  const AuthStateLoggedOut();
+class AuthStateLoggedOut extends AuthState with EquatableMixin {
+  final Exception? exception;
+
+  AuthStateLoggedOut({
+    required super.isLoading,
+    super.loadingText,
+    required this.exception,
+  });
+
+  @override
+  List<Object?> get props => [
+        exception,
+        isLoading,
+      ];
 }
 
-class AuthStateLogoutFaliure extends AuthState {
-  final Exception exception;
-  const AuthStateLogoutFaliure(this.exception);
+class AuthStateRegistering extends AuthState with EquatableMixin {
+  final Exception? exception;
+
+  AuthStateRegistering({
+    required super.isLoading,
+    super.loadingText,
+    required this.exception,
+  });
+
+  @override
+  List<Object?> get props => [
+        exception,
+        isLoading,
+      ];
+}
+
+class AuthStateForgotPassword extends AuthState {
+  final bool hasSentemail;
+  final Exception? exception;
+  const AuthStateForgotPassword({
+    required super.isLoading,
+    required this.exception,
+    required this.hasSentemail,
+  });
 }
