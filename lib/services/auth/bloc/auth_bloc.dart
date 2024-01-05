@@ -16,7 +16,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user == null) {
         emit(AuthStateLoggedOut(exception: null, isLoading: false));
       } else if (!user.isEmailVerified) {
-        emit(const AuthStateNeedVerification(isLoading: false));
+        emit(const AuthStateNeedVerification(
+          exception: null,
+          isLoading: false,
+        ));
       } else {
         emit(AuthStateLoggedIn(user, isLoading: false));
       }
@@ -52,7 +55,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false,
             ),
           );
-          emit(const AuthStateNeedVerification(isLoading: false));
+          emit(const AuthStateNeedVerification(
+              exception: null, isLoading: false));
         } on Exception catch (exception) {
           emit(
             AuthStateRegistering(
@@ -87,7 +91,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false,
             ),
           );
-          emit(const AuthStateNeedVerification(isLoading: false));
+          emit(const AuthStateNeedVerification(
+            exception: null,
+            isLoading: false,
+          ));
         } else {
           emit(
             AuthStateLoggedOut(
@@ -105,6 +112,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } on Exception catch (exception) {
         emit(
           AuthStateLoggedOut(
+            exception: exception,
+            isLoading: false,
+          ),
+        );
+      }
+    });
+
+    //check if email verified
+    on<AuthEventCheckVerified>((event, emit) async {
+      emit(const AuthStateNeedVerification(
+          exception: null,
+          isLoading: true,
+          loadingText: 'Checking if Email is Verified... '));
+      try {
+        final user = await provider.refreshUserCredentials();
+        if (user.isEmailVerified) {
+          emit(
+            const AuthStateNeedVerification(
+              exception: null,
+              isLoading: false,
+            ),
+          );
+          emit(
+            AuthStateLoggedIn(
+              user,
+              isLoading: false,
+            ),
+          );
+        } else {
+          emit(
+            AuthStateNeedVerification(
+              exception: EmailNotVerifiedAuthException(),
+              isLoading: false,
+            ),
+          );
+        }
+      } on Exception catch (exception) {
+        emit(
+          AuthStateNeedVerification(
             exception: exception,
             isLoading: false,
           ),
@@ -133,6 +179,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
     );
 
+    //forgot password
     on<AuthEventForgotPassword>(
       (event, emit) async {
         emit(const AuthStateForgotPassword(

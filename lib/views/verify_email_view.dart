@@ -5,6 +5,7 @@ import 'package:my_notes_app/services/auth/auth_exceptions.dart';
 import 'package:my_notes_app/services/auth/auth_service.dart';
 import 'package:my_notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:my_notes_app/services/auth/bloc/auth_event.dart';
+import 'package:my_notes_app/services/auth/bloc/auth_state.dart';
 import 'package:my_notes_app/utils/dialogs/error_dialog.dart';
 // import 'package:my_notes/utils/show_error_dialog.dart';
 
@@ -18,50 +19,64 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Verify")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              "We've sent you an email verification. Please verify your email. If you haven't received the email yet click here:",
-              textAlign: TextAlign.center,
-              textHeightBehavior: TextHeightBehavior(),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(
-                      const AuthEventSendEmailVerification(),
-                    );
-              },
-              child: const Text("Send Email Verification"),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  AuthService.firebase().refreshUserCredentials();
-                } on UserNotLoggedInAuthException {
-                  showErrorDialog(context, 'User Not Logged In');
-                } on GenericAuthException {
-                  showErrorDialog(context, 'Unable to Refresh user Credentias');
-                }
-                final user = AuthService.firebase().currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  showErrorDialog(context, 'Email is not Verified');
-                } else {}
-              },
-              child: const Text("Done"),
-            ),
-            TextButton(
-              onPressed: () async {
-                context.read<AuthBloc>().add(
-                      const AuthEventLogout(),
-                    );
-              },
-              child: const Text("Restart"),
-            ),
-          ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateNeedVerification) {
+          if (state.exception is UserNotLoggedInAuthException) {
+            await showErrorDialog(
+              context,
+              "Critical Error: User Not Logged In",
+            );
+          } else if (state.exception is EmailNotVerifiedAuthException) {
+            await showErrorDialog(
+              context,
+              "Email not Verified",
+            );
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(
+              context,
+              "Authentication Error",
+            );
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Verify")),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                "We've sent you an email verification. Please verify your email. If you haven't received the email yet click here:",
+                textAlign: TextAlign.center,
+                textHeightBehavior: TextHeightBehavior(),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                        const AuthEventSendEmailVerification(),
+                      );
+                },
+                child: const Text("Send Email Verification"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  context.read<AuthBloc>().add(
+                        const AuthEventCheckVerified(),
+                      );
+                },
+                child: const Text("Done"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  context.read<AuthBloc>().add(
+                        const AuthEventLogout(),
+                      );
+                },
+                child: const Text("Restart"),
+              ),
+            ],
+          ),
         ),
       ),
     );

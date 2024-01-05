@@ -22,6 +22,7 @@ void main() {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
+      debugShowCheckedModeBanner: false,
       home: BlocProvider<AuthBloc>(
         create: (context) => AuthBloc(FirebaseAuthProvider()),
         child: const HomePage(),

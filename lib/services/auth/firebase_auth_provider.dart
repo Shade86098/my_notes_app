@@ -105,11 +105,17 @@ class FirebaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Future<void> refreshUserCredentials() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+  Future<AuthUser> refreshUserCredentials() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
       try {
-        user.reload();
+        await firebaseUser.reload();
+        final user = currentUser;
+        if (user != null) {
+          return user;
+        } else {
+          throw UserNotLoggedInAuthException();
+        }
       } catch (_) {
         throw GenericAuthException();
       }
