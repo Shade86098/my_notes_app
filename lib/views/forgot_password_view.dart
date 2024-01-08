@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_notes_app/services/auth/auth_exceptions.dart';
 import 'package:my_notes_app/services/auth/bloc/auth_bloc.dart';
 import 'package:my_notes_app/services/auth/bloc/auth_event.dart';
 import 'package:my_notes_app/services/auth/bloc/auth_state.dart';
@@ -35,7 +36,13 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         if (state is AuthStateForgotPassword) {
           if (state.exception != null) {
             if (!mounted) return;
-            await showErrorDialog(context, state.exception.toString());
+            if (state.exception is InvalidEmailAuthException) {
+              await showErrorDialog(context, 'Please Enter a valid email');
+            } else if (state.exception is UserNotFoundAuthException) {
+              await showErrorDialog(context, 'User not Found');
+            } else {
+              await showErrorDialog(context, 'Some Error Occured');
+            }
           }
           if (state.hasSentemail) {
             _controller.clear();
